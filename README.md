@@ -1,6 +1,6 @@
 # FactorioBot
 
-## Environmental Variables
+## Environmental Variables (global or .env file)
 
 TROVO_CLIENT_ID='trovo client id' <br>
 TROVO_CLIENT_SECRET='trovo client secret' <br>
