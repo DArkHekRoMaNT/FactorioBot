@@ -6,3 +6,5 @@ __pycache__
 /data
 /backups
 /logs
+
+/factorio/mod-list.json
