@@ -156,3 +156,61 @@ commands.add_command("spawn_spawners", "summon spawners around you", function(co
 	player.print("Good luck to survive", { r = 255, g = 0, b = 0, a = 1 })
 end)
 
+
+commands.add_command("give_item", "Give item", function(command)
+	local args = {}
+	for str in  string.gmatch(command.parameter, "%S+") do
+		table.insert(args, str)
+	end
+	if #args < 3 then
+		game.print("/give <player> <name>")
+		return
+	end
+
+	local player = get_player(args[1])
+	if not player then
+		return
+	end
+
+	if not pcall(function()
+		local inventory = player.get_main_inventory()
+		if inventory then
+			inventory.insert({name="uranium-ore", count=args[3]})
+		end
+		player.print("You received a gift", { r = 255, g = 0, b = 0, a = 1 })
+	end) then game.print("Error") end
+end)
+
+commands.add_command("drop_all", "Drop all", function(command)
+	local player = get_player(command.parameter)
+	if not player then
+		return
+	end
+
+	if not pcall(function()
+		local surface = player.surface
+		local inventory = player.get_main_inventory()
+		if inventory then
+			local radius = math.sqrt(#inventory) / 2 + 2
+			game.print(radius)
+			for i=1, #inventory do
+				local stack = inventory[i]
+				local position = surface.find_non_colliding_position("item-on-ground", get_random_position_around(player, radius), 100, 0.1)
+				local simple_stack = {
+					name = stack.name,
+					count = stack.count
+				}
+				if position then
+					surface.create_entity({
+						name = "item-on-ground",
+						position = position,
+						item = stack,
+						stack = simple_stack
+					})
+					inventory.remove(simple_stack)
+				end
+			end
+		end
+		player.print("Curse of leaky pockets. Where is my inventory?", { r = 255, g = 0, b = 0, a = 1 })
+	end) then game.print("Error") end
+end)
