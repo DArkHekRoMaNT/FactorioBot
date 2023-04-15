@@ -53,7 +53,7 @@ def command(name: str, *, aliases=None, owner_only=False, sub_tier_required=-1, 
     return decorator
 
 
-@command('help', aliases=['h', 'помощь'])
+@command('help', aliases=['помощь'])
 def help_command(msg: ChatMessage, bot: 'TrovoChat'):
     help_text = []
     for cmd in commands:
