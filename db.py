@@ -17,15 +17,18 @@ users: list[UserData] = []
 
 def init():
     global users, users_filename
-    users = load(users_filename)
+    users = [UserData.from_dict(usr) for usr in load(users_filename)]
 
 
 def save(filename: str, data: dict or list):
     try:
-        if not os.path.exists('data'):
-            os.makedirs('data')
+        filepath = f'data/{filename}.json'
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+        json_data = json.dumps(data, default=dict, indent=True)
         with open(f'data/{filename}.json', 'w+', encoding='utf-8') as f:
-            f.write(json.dumps(data, default=dict, indent=True))
+            f.write(json_data)
+
     except Exception as e:
         _log.critical(f'Can\'t save: {e}')
         _log.debug(traceback.format_exc())
@@ -76,7 +79,7 @@ def add_points(user: UserData, quantity: int, points_type: PointsType, *, bot: C
             if bot:
                 bot.send_message(f'Add {quantity} ep to {user.name}')
 
-    save(users_filename, users)
+    save(users_filename, [usr.__dict__() for usr in users])
 
 
 def find_user(username: str, *, trovo_id: int = -1, twitch_id: int = -1) -> UserData:
