@@ -66,9 +66,9 @@ def bitters_command(msg: ChatMessage, bot: ChatBot):
     factorio_command(msg, bot, 3500, 70, "/spawn_biters DArkHekRoMaNT", "{user} отправил толпу кусак")
 
 
-@command('splitters', aliases=['плеваки'])
+@command('spitters', aliases=['плеваки'])
 def splitters_command(msg: ChatMessage, bot: ChatBot):
-    factorio_command(msg, bot, 4000, 80, "/spawn_splitters DArkHekRoMaNT", "{user} отправил толпу плевак")
+    factorio_command(msg, bot, 4000, 80, "/spawn_spitters DArkHekRoMaNT", "{user} отправил толпу плевак")
 
 
 @command('worms', aliases=['черви'])
