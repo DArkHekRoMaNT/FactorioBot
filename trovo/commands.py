@@ -9,6 +9,9 @@ commands = []
 
 
 def command(name: str, *, aliases=None, owner_only=False, sub_tier_required=-1, roles_required=None):
+    if aliases is None:
+        aliases = []
+
     def decorator(func):
         def can_execute(msg: ChatMessage, bot: 'TrovoChat') -> bool:
             if owner_only:
@@ -27,13 +30,10 @@ def command(name: str, *, aliases=None, owner_only=False, sub_tier_required=-1, 
 
         def wrapper(msg: ChatMessage, bot: 'TrovoChat'):
             def is_this_command():
-                if aliases is None:
-                    return msg.content.startswith(command_prefix + name)
-                else:
-                    for alias in aliases:
-                        if msg.content.startswith(command_prefix + alias):
-                            return True
-                    return False
+                for cmd in [*aliases, name]:
+                    if msg.content.startswith(command_prefix + cmd):
+                        return True
+                return False
 
             if msg.type == ChatMessageType.NORMAL_CHAT and is_this_command():
                 if can_execute(msg, bot):
