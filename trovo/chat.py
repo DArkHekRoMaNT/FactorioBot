@@ -80,7 +80,7 @@ class TrovoChat:
                 _log.error(f'Response loop connection error, stopped: {e}')
                 self.active = False
             except Exception as e:
-                _log.error(f'Response loop iteration error "{e.__name__()}": {e}')
+                _log.error(f'Response loop iteration error: {e}')
 
     async def _request_loop(self):
         _log.info('Request loop started')
