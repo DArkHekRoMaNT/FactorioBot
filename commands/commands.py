@@ -57,3 +57,11 @@ def help_command(msg: ChatMessage, bot: ChatBot):
         bot.send_message('No available commands')
     else:
         bot.send_message('\u200c' + ' '.join(help_text))  # add zero-width space first for prevent loop
+
+
+def trigger_commands(msg: ChatMessage, bot: ChatBot):
+    for cmd in commands:
+        try:
+            cmd(msg, bot)
+        except Exception as e:
+            _log.warning(f'Trigger command {cmd.name} by {msg.sender.name} is failed: {e}')

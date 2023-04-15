@@ -8,8 +8,8 @@ from time import time
 import websockets
 
 import db
-from commands import commands
-from models import ChatBot, PointsType
+from commands import trigger_commands
+from models import ChatBot, PointsType, ChatMessage, UserData
 from .api import TrovoApi
 from .models import TrovoChatMessage, TrovoChatSocketMessage, TrovoChatMessageType
 
@@ -89,8 +89,13 @@ class TrovoChat(ChatBot):
                     for raw_chat_msg in raw_msg.data.get('chats', []):
                         msg = TrovoChatMessage.from_dict(raw_chat_msg)
                         if msg.send_time >= self.start_time:
-                            self.trigger_commands(msg)
-                            self.check_donation(msg)
+                            user = db.find_user(msg.nick_name, trovo_id=msg.sender_id)
+                            self.check_donation(msg, user)
+                            trigger_commands(ChatMessage(
+                                text=msg.content,
+                                sender=user,
+                                roles=msg.roles
+                            ), self)
                         else:
                             _log.debug(f'Old message "{msg.content}" ignored')
 
@@ -119,26 +124,17 @@ class TrovoChat(ChatBot):
         _log.debug(f'Request: {data}')
         await self.ws.send(data)
 
-    def trigger_commands(self, msg: TrovoChatMessage):
-        for command in commands:
-            try:
-                command(msg, self)
-            except Exception as e:
-                _log.warning(f'Trigger command {command.name} by {msg.nick_name} is failed: {e}')
-
-    def check_donation(self, msg: TrovoChatMessage):
+    def check_donation(self, msg: TrovoChatMessage, user: UserData):
         if msg.type == TrovoChatMessageType.SPELLS:
             content = json.loads(msg.content)
             value = content.get('gift_value')
             num = content.get('num')
-            user = db.find_user(msg.nick_name, trovo_id=msg.sender_id)
             if content.get('value_type') == 'Mana':
                 db.add_points(user, num * value, PointsType.Mana, bot=self)
             elif content.get('value_type') == 'Elixir':
                 db.add_points(user, num * value, PointsType.Elixir, bot=self)
 
         elif msg.type == TrovoChatMessageType.SUBSCRIPTION_MESSAGE:
-            user = db.find_user(msg.nick_name, trovo_id=msg.sender_id)
             db.add_points(user, 500, PointsType.Elixir, bot=self)
 
     def load(self):
