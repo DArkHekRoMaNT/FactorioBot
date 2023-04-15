@@ -40,7 +40,7 @@ def create(client_id: str, client_secret: str, channel_id: str) -> TrovoChat:
 def add_mp_command(msg: ChatMessage, bot: TrovoChat):
     args = msg.content.split()
     if len(args) > 2:
-        user = bot.find_user(args[1])
+        user = bot.find_user(args[1].removeprefix('@'))
         bot.add_mana(user, int(args[2]))
 
 
@@ -48,7 +48,7 @@ def add_mp_command(msg: ChatMessage, bot: TrovoChat):
 def add_ep_command(msg: ChatMessage, bot: TrovoChat):
     args = msg.content.split()
     if len(args) > 2:
-        user = bot.find_user(args[1])
+        user = bot.find_user(args[1].removeprefix('@'))
         bot.add_elixir(user, int(args[2]))
 
 
