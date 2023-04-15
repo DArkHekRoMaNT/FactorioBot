@@ -26,7 +26,7 @@ def command(name: str, *, aliases=None, owner_only=False, roles_required=None):
             return True
 
         def wrapper(msg: ChatMessage, bot: ChatBot):
-            prefix, args = msg.text.split(maxsplit=1)
+            prefix = msg.text.split(maxsplit=1)[0]
 
             if any([cmd for cmd in [*aliases, name] if prefix == command_prefix + cmd]):
                 if can_execute(msg):
