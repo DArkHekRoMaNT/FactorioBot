@@ -66,13 +66,13 @@ def add_points(user: UserData, quantity: int, points_type: PointsType, *, bot: C
     match points_type:
         case points_type.Mana:
             user.mana = user.mana + quantity
-            _log.info(f'Added {quantity} mana points to {user.name}. Total: {user.elixir}')
+            _log.info(f'Added {quantity} mana points to {user.name}. Total: {user.mana}')
             if bot:
                 bot.send_message(f'Add {quantity} mp to {user.name}')
 
         case points_type.Elixir:
             user.elixir = user.elixir + quantity
-            _log.info(f'Added {quantity} elixir points to {user.name}. Total: {user.mana}')
+            _log.info(f'Added {quantity} elixir points to {user.name}. Total: {user.elixir}')
             if bot:
                 bot.send_message(f'Add {quantity} ep to {user.name}')
 
