@@ -114,13 +114,13 @@ class TrovoChat:
     def check_donation(self, msg: ChatMessage):
         if msg.type == ChatMessageType.SPELLS:
             content = json.loads(msg.content)
-            price = content['gift_price_info']
-            num = content['gift_num']
+            value = content.get('gift_value')
+            num = content.get('num')
             user = self.get_user(msg.sender_id, msg.nick_name)
-            if price.get('value_type') == 'Mana':
-                self.add_mana(user, num * price.number)
-            elif price.get('currencyType') == 'Elixir':
-                self.add_elixir(user, num * price.number)
+            if content.get('value_type') == 'Mana':
+                self.add_mana(user, num * value)
+            elif content.get('value_type') == 'Elixir':
+                self.add_elixir(user, num * value)
 
         elif msg.type == ChatMessageType.SUBSCRIPTION_MESSAGE:
             self.add_elixir(self.get_user(msg.sender_id, msg.nick_name), 500)
