@@ -5,14 +5,15 @@ from dotenv import load_dotenv
 
 import db
 from logger import setup_logger
-from trovo import bot
+from trovo import TrovoChat
 
 
 async def main():
     load_dotenv()
     setup_logger()
+    db.init()
     db.backup()
-    trovo = bot.create(
+    trovo = TrovoChat(
         os.getenv('TROVO_CLIENT_ID'),
         os.getenv('TROVO_CLIENT_SECRET'),
         os.getenv('TROVO_MY_CHANNEL_ID')

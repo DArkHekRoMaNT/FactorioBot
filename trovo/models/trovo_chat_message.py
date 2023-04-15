@@ -2,7 +2,7 @@ import enum
 from dataclasses import dataclass
 
 
-class ChatMessageType(enum.Enum):
+class TrovoChatMessageType(enum.Enum):
     NORMAL_CHAT = 0                        # Normal chat messages
     SPELLS = 5                             # Spells, including: mana spells, elixir spells
     MAGIC_CHAT_SUPER_CAP = 6               # Magic chat - super cap chat
@@ -22,9 +22,23 @@ class ChatMessageType(enum.Enum):
     UNFOLLOW_MESSAGE = 5013                # Unfollow message
 
 
+class ChannelUserRole(enum.Enum):
+    STREAMER = 100000     # Streamer of the current channel
+    MOD = 100001          # Moderator of the current channel
+    EDITOR = 100002       # Editor of the current channel
+    SUB = 100004          # User who subscribed the current channel
+    SUPER_MOD = 100005    # Super moderator of the current channel
+    FOLLOWER = 100006     # User who followed of the current channel
+    CUSTOM_ROLE = 200000  # User who have a role customized by the streamer of the current channel
+    ACE = 300000          # Primary tier of Trovo membership
+    ACE_PREMIUM = 300001  # Premium tier of Trovo membership
+    ADMIN = 500000        # Admin of Trovo platform, across all channels
+    WARDEN = 500001       # Warden of Trovo platform, across all channels, who helps to maintain the platform order
+
+
 @dataclass
-class ChatMessage:
-    type: ChatMessageType
+class TrovoChatMessage:
+    type: TrovoChatMessageType
     content: str
     nick_name: str
     avatar: str
@@ -36,8 +50,8 @@ class ChatMessage:
     send_time: int
 
     @staticmethod
-    def from_dict(obj: dict) -> 'ChatMessage':
-        _type = ChatMessageType(obj.get('type'))
+    def from_dict(obj: dict) -> 'TrovoChatMessage':
+        _type = TrovoChatMessageType(obj.get('type'))
         _content = str(obj.get('content'))
         _nick_name = str(obj.get('nick_name'))
         _avatar = str(obj.get('avatar'))
@@ -48,5 +62,5 @@ class ChatMessage:
         _sender_id = int(obj.get('sender_id', 0))
         _send_time = int(obj.get('send_time', 0))
 
-        return ChatMessage(_type, _content, _nick_name, _avatar, _sub_tier, _medals, _roles,
-                           _message_id, _sender_id, _send_time)
+        return TrovoChatMessage(_type, _content, _nick_name, _avatar, _sub_tier, _medals, _roles,
+                                _message_id, _sender_id, _send_time)
