@@ -142,15 +142,15 @@ class TrovoChat:
         return self.get_user(int(info['users'][0]['user_id']), user_name)
 
     def add_mana(self, user: User, number: int):
-        user.elixir += number
+        user.mana += number
         self.send_message(f'Add {number} mp to {user.name}')
-        _log.info(f'Added {number} elixir points to {user.name}. Total: {user.elixir}')
+        _log.info(f'Added {number} mana points to {user.name}. Total: {user.elixir}')
         self.save()
 
     def add_elixir(self, user: User, number: int):
-        user.mana += number
+        user.elixir += number
         self.send_message(f'Add {number} ep to {user.name}')
-        _log.info(f'Added {number} mana points to {user.name}. Total: {user.mana}')
+        _log.info(f'Added {number} elixir points to {user.name}. Total: {user.mana}')
         self.save()
 
     def load(self):
