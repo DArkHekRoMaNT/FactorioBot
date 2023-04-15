@@ -27,7 +27,7 @@ def save(filename: str, data: dict or list):
         with open(f'data/{filename}.json', 'w+', encoding='utf-8') as f:
             f.write(json.dumps(data, default=dict, indent=True))
     except Exception as e:
-        _log.critical(e)
+        _log.critical(f'Can\'t save: {e}')
         _log.debug(traceback.format_exc())
 
 
@@ -40,10 +40,10 @@ def load(filename: str) -> dict or list:
     except FileNotFoundError as e:
         _log.warning(f'File not found {e.filename}')
     except JSONDecodeError as e:
-        _log.error(e)
+        _log.critical(f'Can\'t load (decode): {e}')
         _log.debug(traceback.format_exc())
     except Exception as e:
-        _log.critical(e)
+        _log.critical(f'Can\'t load: {e}')
         _log.debug(traceback.format_exc())
     return {}
 

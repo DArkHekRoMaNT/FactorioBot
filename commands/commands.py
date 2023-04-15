@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 from models import ChatMessage, ChatBot
 
@@ -34,7 +35,8 @@ def command(name: str, *, aliases=None, owner_only=False, roles_required=None):
                     try:
                         return func(msg, bot)
                     except Exception as e:
-                        _log.error(e)
+                        _log.error(f'Error during execute {name} be {msg.sender.name}: {e}')
+                        _log.debug(traceback.format_exc())
                 else:
                     _log.debug(f'Reject command "{name}": {msg.text} by {msg.sender.name} (no privileges)')
 
@@ -65,3 +67,4 @@ def trigger_commands(msg: ChatMessage, bot: ChatBot):
             cmd(msg, bot)
         except Exception as e:
             _log.warning(f'Trigger command {cmd.name} by {msg.sender.name} is failed: {e}')
+            _log.debug(traceback.format_exc())
