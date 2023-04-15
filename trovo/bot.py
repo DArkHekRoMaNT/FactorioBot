@@ -16,7 +16,8 @@ class FactorioClient(factorio_rcon.RCONClient):
 
     def try_connect(self):
         try:
-            self.connect()
+            if self.rcon_socket is None:
+                self.connect()
             return True
         except Exception as e:
             _log.error(f"factorio client: {e}")
@@ -78,8 +79,10 @@ def points_command(msg: ChatMessage, bot: TrovoChat):
 
 def factorio_command(msg: ChatMessage, bot: TrovoChat, mana: int, elixir: int, cmd_name: str, answer: str):
     user = bot.get_user(msg.sender_id, msg.nick_name)
+    _log.info(f'Trigger factorio command {cmd_name} by {user.name}')
     if user.mana >= mana >= 0 or user.elixir >= elixir >= 0:
         try:
+            factorio_client.try_connect()
             factorio_client.send_command(cmd_name)
             if user.mana >= mana >= 0:
                 bot.add_mana(user, -mana)
@@ -87,8 +90,7 @@ def factorio_command(msg: ChatMessage, bot: TrovoChat, mana: int, elixir: int, c
                 bot.add_elixir(user, -elixir)
             bot.send_message(answer.replace("{user}", user.name))
         except Exception as e:
-            _log.error(f"Try trigger factorio command {cmd_name} by {user.name}: {e}")
-            factorio_client.try_connect()
+            _log.error(f"Error {cmd_name} by {user.name}: {e}")
     else:
         if mana < 0:
             bot.send_message(f"@{user.name} не хватает ({elixir} ep)")
@@ -120,7 +122,7 @@ def bitters_command(msg: ChatMessage, bot: TrovoChat):
 
 @command('hotpotato', aliases=['горячаякартошка'])
 def bitters_command(msg: ChatMessage, bot: TrovoChat):
-    factorio_command(msg, bot, 2500, 50, "/give_item DArkHekRoMaNT uranium_ore 10", "{user} добавил немного радиации")
+    factorio_command(msg, bot, 2500, 50, "/give_item DArkHekRoMaNT uranium_ore 100", "{user} добавил немного радиации")
 
 
 @command('reactor', aliases=['реактор'])
