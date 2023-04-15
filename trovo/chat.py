@@ -69,7 +69,7 @@ class TrovoChat:
                         self.last_pong_time = time()
                         self.heartbeat_gap = raw_msg.data.get('gap', 30)
                     case ChatServiceMessageType.CHAT:
-                        for raw_chat_msg in raw_msg.data.get('chats'):
+                        for raw_chat_msg in raw_msg.data.get('chats', []):
                             msg = ChatMessage.from_dict(raw_chat_msg)
                             if msg.send_time >= self.start_time:
                                 self.trigger_commands(msg)
