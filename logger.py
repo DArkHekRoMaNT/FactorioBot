@@ -24,7 +24,7 @@ def get_console_handler():
 def get_file_handler():
     if not os.path.exists('logs'):
         os.makedirs('logs')
-    file_handler = logging.FileHandler('logs/latest.log')
+    file_handler = logging.FileHandler('logs/latest.log', encoding='utf-8')
     file_handler.setFormatter(logging.Formatter(
         '{asctime} {levelname} {name}: {message}',
         datefmt='%H:%M:%S',
