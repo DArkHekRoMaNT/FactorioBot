@@ -10,16 +10,20 @@ from models import ChatMessage, ChatBot, PointsType
 _log = logging.getLogger(__name__)
 
 active = False
-client = factorio_rcon.RCONClient(
-    os.getenv("FACTORIO_RCON_HOST"),
-    int(os.getenv("FACTORIO_RCON_PORT")),
-    os.getenv("FACTORIO_RCON_PASS"),
-    connect_on_init=False
-)
+
+client: factorio_rcon
 
 
 def try_connect_rcon():
+    global client
     try:
+        if not client:
+            client = factorio_rcon.RCONClient(
+                os.getenv("FACTORIO_RCON_HOST"),
+                int(os.getenv("FACTORIO_RCON_PORT")),
+                os.getenv("FACTORIO_RCON_PASS")
+            )
+
         if client.rcon_socket is None:
             client.connect()
     except Exception as e:
