@@ -1,5 +1,6 @@
 import logging
 import os
+import traceback
 
 import factorio_rcon
 
@@ -28,6 +29,7 @@ def try_connect_rcon():
             client.connect()
     except Exception as e:
         _log.error(f"factorio client: {e}")
+        _log.debug(traceback.format_exc())
 
 
 def factorio_command(msg: ChatMessage, bot: ChatBot, mana: int, elixir: int, cmd_name: str, answer: str):

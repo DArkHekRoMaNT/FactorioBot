@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import string
+import traceback
 from time import time
 
 import websockets
@@ -57,6 +58,7 @@ class TrovoChat(ChatBot):
 
                 except Exception as e:
                     _log.error(f'{name} loop crashed: {e}')
+                    _log.debug(traceback.format_exc())
                     self.active = False
 
             return wrapper
@@ -101,6 +103,7 @@ class TrovoChat(ChatBot):
 
         except websockets.ConnectionClosedError as e:
             _log.error(f'Response loop connection error, stopped: {e}')
+            _log.debug(traceback.format_exc())
             self.active = False
 
     @loop('Request')

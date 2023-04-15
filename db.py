@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import traceback
 import zipfile
 from datetime import datetime
 from json import JSONDecodeError
@@ -27,6 +28,7 @@ def save(filename: str, data: dict or list):
             f.write(json.dumps(data, default=dict, indent=True))
     except Exception as e:
         _log.critical(e)
+        _log.debug(traceback.format_exc())
 
 
 def load(filename: str) -> dict or list:
@@ -39,8 +41,10 @@ def load(filename: str) -> dict or list:
         _log.warning(f'File not found {e.filename}')
     except JSONDecodeError as e:
         _log.error(e)
+        _log.debug(traceback.format_exc())
     except Exception as e:
         _log.critical(e)
+        _log.debug(traceback.format_exc())
     return {}
 
 
