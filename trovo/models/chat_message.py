@@ -42,11 +42,11 @@ class ChatMessage:
         _nick_name = str(obj.get('nick_name'))
         _avatar = str(obj.get('avatar'))
         _sub_tier = int(obj.get('sub_tier', -1))
-        _medals = list(obj.get('medals'))
-        _roles = list(obj.get('roles'))
+        _medals = list(obj.get('medals', []))
+        _roles = list(obj.get('roles', []))
         _message_id = str(obj.get('message_id'))
-        _sender_id = int(obj.get('sender_id'))
-        _send_time = int(obj.get('send_time'))
+        _sender_id = int(obj.get('sender_id', 0))
+        _send_time = int(obj.get('send_time', 0))
 
         return ChatMessage(_type, _content, _nick_name, _avatar, _sub_tier, _medals, _roles,
                            _message_id, _sender_id, _send_time)
