@@ -18,7 +18,9 @@ client: factorio_rcon
 def try_connect_rcon():
     global client
     try:
-        if not client:
+        try:
+            client
+        except NameError:
             client = factorio_rcon.RCONClient(
                 os.getenv("FACTORIO_RCON_HOST"),
                 int(os.getenv("FACTORIO_RCON_PORT")),
