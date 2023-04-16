@@ -24,9 +24,8 @@ def save(filename: str, data: dict or list):
     try:
         filepath = f'data/{filename}.json'
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
         json_data = json.dumps(data, default=dict, indent=True)
-        with open(f'data/{filename}.json', 'w+', encoding='utf-8') as f:
+        with open(filepath, 'w+', encoding='utf-8') as f:
             f.write(json_data)
 
     except Exception as e:
@@ -36,9 +35,9 @@ def save(filename: str, data: dict or list):
 
 def load(filename: str) -> dict or list:
     try:
-        if not os.path.exists('data'):
-            os.makedirs('data')
-        with open(f'data/{filename}.json', 'r', encoding='utf-8') as f:
+        filepath = f'data/{filename}.json'
+        os.makedirs(filepath, exist_ok=True)
+        with open(filepath, 'r', encoding='utf-8') as f:
             return json.loads(f.read())
     except FileNotFoundError as e:
         _log.warning(f'File not found {e.filename}')
@@ -53,8 +52,7 @@ def load(filename: str) -> dict or list:
 
 def backup():
     backup_path = f'backups/backup_{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.zip'
-    if not os.path.exists('backups'):
-        os.makedirs('backups')
+    os.makedirs('backups', exist_ok=True)
     with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk('data/'):
             for file in files:
@@ -65,7 +63,6 @@ def backup():
 
 def add_points(user: UserData, quantity: int, points_type: PointsType, *, bot: ChatBot = None):
     global users, users_filename
-
     match points_type:
         case points_type.Mana:
             user.mana = user.mana + quantity
