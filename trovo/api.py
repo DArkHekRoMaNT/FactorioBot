@@ -25,11 +25,11 @@ class TrovoApi:
         'send_to_my_channel',
         'manage_messages'
     ]
-    redirect_uri = 'http://localhost:8000'
 
-    def __init__(self, client_id: str, client_secret: str):
+    def __init__(self, client_id: str, client_secret: str, redirect_url: str):
         self.client_id = client_id
         self.client_secret = client_secret
+        self.redirect_uri = redirect_url
         self.access_token = None
         self.refresh_token = None
 
