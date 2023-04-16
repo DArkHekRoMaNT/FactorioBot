@@ -80,7 +80,7 @@ class TrovoChat(ChatBot):
             raw_msg = TrovoChatSocketMessage.from_dict(json.loads(data))
 
             match raw_msg.type:
-                case "AUTH":
+                case "RESPONSE":
                     self.send_message('Awakening')
 
                 case "PONG":
