@@ -4,8 +4,11 @@ import socket
 import webbrowser
 from time import time
 from urllib import parse
+from urllib.parse import urlencode
 
 import requests
+
+from utils import request_oauth_login_by_user
 
 _log = logging.getLogger(__name__)
 
@@ -58,21 +61,13 @@ class TrovoApi:
         return self.access_token is not None
 
     def _get_code(self) -> str:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('127.0.0.1', 8000))
-            s.listen()
-            webbrowser.open(
-                self.login_url +
-                '?client_id=' + self.client_id +
-                '&response_type=code' +
-                '&scope=' + '+'.join(self.scopes) +
-                '&redirect_uri=' + self.redirect_uri)
-            conn, addr = s.accept()
-            with conn:
-                data = conn.recv(1024).decode()
-                qs = data.split()[1][2:]
-                conn.send('HTTP/1.1 200 OK\nContent-Type: text/html\n\nYou may close this window.'.encode())
-                return parse.parse_qs(qs)['code'][0]
+        d = {
+            'client_id': self.client_id,
+            'response_type': 'code',
+            'scope': '+'.join(self.scopes),
+            'redirect_uri': self.redirect_uri
+        }
+        return request_oauth_login_by_user(f'{self.login_url}?{urlencode(d)}')
 
     def is_token_valid(self) -> bool:
         _log.info('Check is access token valid')
