@@ -36,7 +36,7 @@ def save(filename: str, data: dict or list):
 def load(filename: str) -> dict or list:
     try:
         filepath = f'data/{filename}.json'
-        os.makedirs(filepath, exist_ok=True)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.loads(f.read())
     except FileNotFoundError as e:
