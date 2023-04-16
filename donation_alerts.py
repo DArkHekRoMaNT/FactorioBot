@@ -1,79 +1,96 @@
+import asyncio
 import json
 import logging
-from asyncio import sleep
+import traceback
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
-import requests
-from donationalerts import DonationAlertsAPI, Scopes, DEFAULT_URL, Centrifugo
-from donationalerts.asyncio_api import Alert
+import socketio
 
 import db
-from utils import request_oauth_login_by_user
+from models import ChatBot, PointsType
 
 _log = logging.getLogger(__name__)
 
 
-class DonationAlertsService:
-    auth_data_path = 'auth/donation_alerts'
-    data_path = 'donation_alerts'
-    access_token: str = None
-    refresh_token: str = None
-    active = False
-    centrifugo: Centrifugo = None
+@dataclass
+class AlertMessage:
+    id: int
+    alert_type: str
+    is_shown: str
+    additional_data: dict
+    billing_system: str
+    billing_system_type: str
+    username: str
+    amount: str
+    amount_formatted: str
+    amount_main: int
+    currency: str
+    message: str
+    header: str
+    date_created: Any
+    emotes: str
+    ap_id: str
+    is_test_alert: bool
+    message_type: str
+    preset_id: int
+    objects: dict
 
-    def __init__(self, client_id: str, client_secret: str, redirect_url: str):
-        self.api = DonationAlertsAPI(client_id, client_secret, redirect_url, Scopes.ALL_SCOPES)
+    @staticmethod
+    def from_dict(obj) -> 'AlertMessage':
+        return AlertMessage(
+            id=obj.get('id'),
+            alert_type=obj.get('alert_type'),
+            is_shown=obj.get('is_shown'),
+            additional_data=json.loads(obj.get('additional_data', '')),
+            billing_system=obj.get('billing_system'),
+            billing_system_type=obj.get('billing_system_type'),
+            username=obj.get('username'),
+            amount=obj.get('amount'),
+            amount_formatted=obj.get('amount_formatted'),
+            amount_main=obj.get('amount_main'),
+            currency=obj.get('currency'),
+            message=obj.get('message'),
+            header=obj.get('header'),
+            date_created=datetime.strptime(obj.get('date_created', ''), '%Y-%m-%d %H:%M:%S'),
+            emotes=obj.get('emotes'),
+            ap_id=obj.get('ap_id'),
+            is_test_alert=obj.get('_is_test_alert'),
+            message_type=obj.get('message_type'),
+            preset_id=obj.get('preset_id'),
+            objects=obj
+        )
 
-    def auth(self) -> bool:
-        if not self.access_token and not self.refresh_token:
-            _log.info('First auth. Open browser')
-            code = request_oauth_login_by_user(self.api.login())
-            json_request = self.api.get_access_token(code, full_json=True)
-            self.access_token = json_request.access_token
-            self.refresh_token = json_request.refresh_token
-            return self.is_token_valid()
 
-        if self.is_token_valid():
-            return True
-        elif self.refresh_token:
-            _log.info('Refresh token')
-            payload = {
-                'grant_type': 'refresh_token',
-                'refresh_token': self.refresh_token,
-                'client_id': self.api.client_id,
-                'client_secret': self.api.client_secret,
-                'scope': self.api.scope
-            }
-            response = requests.post(f"{DEFAULT_URL}token", data=payload)
-            obj = json.loads(response.text)
-            self.access_token = obj.get('access_token')
-            self.refresh_token = obj.get('refresh_token')
-            return self.is_token_valid()
-        else:
-            return False
+sio = socketio.AsyncClient()
 
-    def is_token_valid(self) -> bool:
-        _log.info('Check is access token valid')
-        try:
-            self.api.user(self.access_token)
-            return True
-        except KeyError:
-            _log.info('Invalid token')
-            return False
 
-    async def run(self):
-        self.load()
-        if not self.auth():
-            _log.critical('Auth error')
+async def run(token: str, bot: ChatBot):
+    @sio.on('connect')
+    async def on_connect():
+        await sio.emit('add-user', {'token': token, 'type': 'alert_widget'})
+
+    @sio.on('donation')
+    async def on_message(data):
+        data = json.loads(data)
+        msg = AlertMessage.from_dict(data)
+        _log.info(msg)
+
+        if msg.is_test_alert:
             return
-        self.save()
 
-    def save(self):
-        db.save(self.auth_data_path, {
-            'access_token': self.access_token,
-            'refresh_token': self.refresh_token
-        })
+        try:
+            user = db.find_user(msg.username)
+            db.add_points(user, msg.amount_main, PointsType.Elixir, bot=bot)
+        except Exception as e:
+            _log.error(f'Can\'t add donation points {e}')
+            _log.debug(traceback.format_exc(e))
 
-    def load(self):
-        data = db.load(self.auth_data_path)
-        self.access_token = data.get('access_token')
-        self.refresh_token = data.get('refresh_token')
+    while True:
+        if sio.connected:
+            await asyncio.sleep(30)
+            continue
+
+        await sio.connect('wss://socket.donationalerts.ru:443', transports='websocket')
+        _log.info('Socket connected')
