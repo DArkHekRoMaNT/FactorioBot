@@ -32,21 +32,23 @@ class TrovoChat(ChatBot):
         self.channel_id = channel_id
 
     async def run(self):
-        self.load()
-        if not self.api.auth():
-            _log.critical('Auth error')
-            return
-        self.save()
+        while True:
+            self.load()
+            if not self.api.auth():
+                _log.critical('Auth error')
+                return
+            self.save()
 
-        self.active = True
-        self.start_time = int(time())
-        self.ws = await websockets.connect(self.chat_url)
-        tasks = [
-            asyncio.create_task(self._ping_pong_loop()),
-            asyncio.create_task(self._response_loop()),
-            asyncio.create_task(self._request_loop())
-        ]
-        await asyncio.gather(*tasks)
+            self.active = True
+            self.start_time = int(time())
+            self.ws = await websockets.connect(self.chat_url)
+            tasks = [
+                asyncio.create_task(self._ping_pong_loop()),
+                asyncio.create_task(self._response_loop()),
+                asyncio.create_task(self._request_loop())
+            ]
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(5)
 
     @staticmethod
     def loop(name: str):

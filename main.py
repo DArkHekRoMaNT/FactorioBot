@@ -44,13 +44,8 @@ async def main():
 
     donation_alerts = DonationAlerts(os.getenv('DA_TOKEN'), trovo_bot)
 
-    async def trovo_loop():
-        while True:
-            await trovo_bot.run()
-            await asyncio.sleep(3)
-
     tasks = [
-        asyncio.create_task(trovo_loop()),
+        asyncio.create_task(trovo_bot.run()),
         asyncio.create_task(twitch_bot.run()),
         asyncio.create_task(donation_alerts.run())
     ]
