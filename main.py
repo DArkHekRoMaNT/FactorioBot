@@ -26,9 +26,10 @@ async def main():
     )
 
     factorio_bot = FactorioBot(
-        os.getenv("FACTORIO_RCON_HOST"),
-        int(os.getenv("FACTORIO_RCON_PORT")),
-        os.getenv("FACTORIO_RCON_PASS")
+        os.getenv('FACTORIO_RCON_HOST'),
+        int(os.getenv('FACTORIO_RCON_PORT')),
+        os.getenv('FACTORIO_RCON_PASS'),
+        os.getenv('FACTORIO_USERNAME')
     )
     factorio_bot.start()
     commands.enable_module('factorio')

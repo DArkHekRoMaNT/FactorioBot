@@ -13,10 +13,11 @@ class FactorioBot(ChatBot):
     client: factorio_rcon.RCONClient = None
     cmd_queue = []
 
-    def __init__(self, rcon_host: str, rcon_port: int, rcon_password: str):
+    def __init__(self, rcon_host: str, rcon_port: int, rcon_password: str, username: str):
         self.rcon_host = rcon_host
         self.rcon_port = rcon_port
         self.rcon_password = rcon_password
+        self.username = username
         self._registry()
 
     def start(self):
@@ -49,35 +50,35 @@ class FactorioBot(ChatBot):
 
         @command('biters', aliases=['кусаки'], mana=3500, elixir=70, module='factorio')
         def bitters_command(msg: ChatMessage, bot: ChatBot):
-            execute('/spawn_biters DArkHekRoMaNT')
+            execute(f'/spawn_biters {self.username}')
             bot.send_message(f'{msg.sender} отправил толпу кусак')
 
         @command('spitters', aliases=['плеваки'], mana=4000, elixir=80, module='factorio')
         def splitters_command(msg: ChatMessage, bot: ChatBot):
-            execute('/spawn_spitters DArkHekRoMaNT')
+            execute(f'/spawn_spitters {self.username}')
             bot.send_message(f'{msg.sender} отправил толпу плевак')
 
         @command('worms', aliases=['черви'], mana=5000, elixir=100, module='factorio')
         def worms_command(msg: ChatMessage, bot: ChatBot):
-            execute('/spawn_worms DArkHekRoMaNT')
+            execute(f'/spawn_worms {self.username}')
             bot.send_message(f'{msg.sender} призвал червей')
 
         @command('spawners', aliases=['гнезда'], mana=10000, elixir=200, module='factorio')
         def spawners_command(msg: ChatMessage, bot: ChatBot):
-            execute('/spawn_spawners DArkHekRoMaNT')
+            execute(f'/spawn_spawners {self.username}')
             bot.send_message(f'{msg.sender} заспавнил метеорит из кусак')
 
         @command('hotpotato', aliases=['горячаякартошка'], mana=2500, elixir=50, module='factorio')
         def hotpotato_command(msg: ChatMessage, bot: ChatBot):
-            execute('/give_item DArkHekRoMaNT uranium_ore 100')
+            execute(f'/give_item {self.username} uranium_ore 100')
             bot.send_message(f'{msg.sender} добавил немного радиации')
 
         @command('reactor', aliases=['реактор'], mana=-1, elixir=100, module='factorio')
         def reactor_command(msg: ChatMessage, bot: ChatBot):
-            execute('/give_item DArkHekRoMaNT uranium_ore 999999999')
+            execute(f'/give_item {self.username} uranium_ore 999999999')
             bot.send_message(f'{msg.sender} помог запустить реактор')
 
         @command('dropall', aliases=['выброситьвсе'], mana=2500, elixir=50, module='factorio')
         def dropall_command(msg: ChatMessage, bot: ChatBot):
-            execute('/drop_all DArkHekRoMaNT')
+            execute(f'/drop_all {self.username}')
             bot.send_message(f'{msg.sender} разгрузил инвентарь')
