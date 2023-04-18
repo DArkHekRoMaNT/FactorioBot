@@ -27,6 +27,9 @@ def command(name: str, *, aliases=None, owner_only=False, roles_required=None,
 
     def decorator(func):
         def can_execute(msg: ChatMessage) -> bool:
+            if module not in active_modules:
+                return False
+
             if owner_only:
                 return msg.roles.__contains__('streamer') or msg.roles.__contains__('broadcaster')
 
@@ -99,13 +102,32 @@ def help_command(msg: ChatMessage, bot: ChatBot):
         bot.send_message('\u200c' + ' '.join(help_text))  # add zero-width space first for prevent loop
 
 
+@command('module_on', owner_only=True)
+def enable_module_command(msg: ChatMessage, bot: ChatBot):
+    args = msg.text.split(maxsplit=1)
+    if len(args) < 2:
+        return
+
+    module = args[1]
+    enable_module(module)
+    bot.send_message(f'Module {module} on')
+
+
+@command('module_off', owner_only=True)
+def disable_module_command(msg: ChatMessage, bot: ChatBot):
+    args = msg.text.split(maxsplit=1)
+    if len(args) < 2:
+        return
+
+    module = args[1]
+    disable_module(module)
+    bot.send_message(f'Module {module} off')
+
+
 def trigger_commands(msg: ChatMessage, bot: ChatBot):
     for cmd in commands:
         try:
-            if cmd.module in active_modules:
-                cmd(msg, bot)
-            else:
-                _log.info(f'Module {cmd.module} disabled, skipped command {cmd.name} by {msg.sender.name}')
+            cmd(msg, bot)
         except Exception as e:
             _log.warning(f'Trigger command {cmd.name} by {msg.sender.name} is failed: {e}')
             _log.debug(traceback.format_exc())
