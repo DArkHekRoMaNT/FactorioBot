@@ -9,6 +9,7 @@ from logger import setup_logger
 from services.donation_alerts import DonationAlerts
 from services.factorio import FactorioBot
 from services.trovo import TrovoChat
+from services.twitch import TwitchBot
 
 
 async def main():
@@ -23,6 +24,13 @@ async def main():
         os.getenv('TROVO_CLIENT_SECRET'),
         os.getenv('TROVO_REDIRECT_URL'),
         os.getenv('TROVO_CHANNEL_ID')
+    )
+
+    twitch_bot = TwitchBot(
+        os.getenv('TWITCH_CLIENT_ID'),
+        os.getenv('TWITCH_CLIENT_SECRET'),
+        os.getenv('TWITCH_REDIRECT_URL'),
+        os.getenv('TWITCH_CHANNEL_NAME')
     )
 
     factorio_bot = FactorioBot(
@@ -43,6 +51,7 @@ async def main():
 
     tasks = [
         asyncio.create_task(trovo_loop()),
+        asyncio.create_task(twitch_bot.run()),
         asyncio.create_task(donation_alerts.run())
     ]
 

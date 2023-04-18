@@ -80,7 +80,7 @@ def add_points(user: UserData, quantity: int, points_type: PointsType, *, bot: C
 
 
 def find_user(username: str, *, trovo_id: int = -1, twitch_id: int = -1) -> UserData:
-    user = utils.first(users, matcher=lambda usr: usr.name == username)
+    user = utils.first(users, matcher=lambda usr: str.lower(usr.name) == str.lower(username))
 
     if not user and trovo_id != -1:
         user = utils.first(users, matcher=lambda usr: usr.trovo_id == trovo_id)

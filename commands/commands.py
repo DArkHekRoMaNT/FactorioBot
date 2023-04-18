@@ -28,7 +28,7 @@ def command(name: str, *, aliases=None, owner_only=False, roles_required=None,
     def decorator(func):
         def can_execute(msg: ChatMessage) -> bool:
             if owner_only:
-                return msg.roles.__contains__('streamer')
+                return msg.roles.__contains__('streamer') or msg.roles.__contains__('broadcaster')
 
             if roles_required:
                 for role in roles_required:
