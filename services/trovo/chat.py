@@ -27,7 +27,7 @@ class TrovoChat(ChatBot):
     start_time = 0
     last_pong_time = 0
 
-    def __init__(self, client_id: str, client_secret: str, channel_id: str, redirect_url: str):
+    def __init__(self, client_id: str, client_secret: str, redirect_url: str, channel_id: str):
         self.api = TrovoApi(client_id, client_secret, redirect_url)
         self.channel_id = channel_id
 

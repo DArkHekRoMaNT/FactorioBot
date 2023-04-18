@@ -21,8 +21,8 @@ async def main():
     trovo_bot = TrovoChat(
         os.getenv('TROVO_CLIENT_ID'),
         os.getenv('TROVO_CLIENT_SECRET'),
-        os.getenv('TROVO_MY_CHANNEL_ID'),
-        'http://localhost:8000'
+        os.getenv('TROVO_REDIRECT_URL'),
+        os.getenv('TROVO_CHANNEL_ID')
     )
 
     factorio_bot = FactorioBot(
