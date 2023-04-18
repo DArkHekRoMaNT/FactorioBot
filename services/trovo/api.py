@@ -1,9 +1,6 @@
 import json
 import logging
-import socket
-import webbrowser
 from time import time
-from urllib import parse
 from urllib.parse import urlencode
 
 import requests

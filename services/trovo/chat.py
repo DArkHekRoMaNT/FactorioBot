@@ -12,7 +12,8 @@ import db
 from commands import trigger_commands
 from models import ChatBot, PointsType, ChatMessage, UserData
 from .api import TrovoApi
-from .models import TrovoChatMessage, TrovoChatSocketMessage, TrovoChatMessageType
+from ._chat_message import TrovoChatMessage, TrovoChatMessageType
+from ._chat_socket_message import TrovoChatSocketMessage
 
 _log = logging.getLogger(__name__)
 
@@ -62,6 +63,7 @@ class TrovoChat(ChatBot):
                     self.active = False
 
             return wrapper
+
         return decorator
 
     @loop('Ping-pong')

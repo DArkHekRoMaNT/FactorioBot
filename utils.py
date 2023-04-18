@@ -1,5 +1,5 @@
-import webbrowser
 import socket
+import webbrowser
 from urllib import parse
 
 

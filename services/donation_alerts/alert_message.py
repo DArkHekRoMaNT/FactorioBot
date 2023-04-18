@@ -1,17 +1,7 @@
-import asyncio
 import json
-import logging
-import traceback
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
-
-import socketio
-
-import db
-from models import ChatBot, PointsType
-
-_log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -61,36 +51,3 @@ class AlertMessage:
             preset_id=obj.get('preset_id'),
             objects=obj
         )
-
-
-sio = socketio.AsyncClient()
-
-
-async def run(token: str, bot: ChatBot):
-    @sio.on('connect')
-    async def on_connect():
-        await sio.emit('add-user', {'token': token, 'type': 'alert_widget'})
-
-    @sio.on('donation')
-    async def on_message(data):
-        data = json.loads(data)
-        msg = AlertMessage.from_dict(data)
-        _log.info(msg)
-
-        if msg.is_test_alert:
-            return
-
-        try:
-            user = db.find_user(msg.username)
-            db.add_points(user, msg.amount_main, PointsType.Elixir, bot=bot)
-        except Exception as e:
-            _log.error(f'Can\'t add donation points {e}')
-            _log.debug(traceback.format_exc(e))
-
-    while True:
-        if sio.connected:
-            await asyncio.sleep(30)
-            continue
-
-        await sio.connect('wss://socket.donationalerts.ru:443', transports='websocket')
-        _log.info('Socket connected')

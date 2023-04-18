@@ -40,5 +40,5 @@ def setup_logger():
     log.addHandler(get_console_handler())
     log.addHandler(get_file_handler())
 
-    trovo_log = logging.getLogger('trovo')
+    trovo_log = logging.getLogger('services')
     trovo_log.setLevel(logging.DEBUG)
