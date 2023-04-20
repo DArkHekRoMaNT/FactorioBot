@@ -52,10 +52,16 @@ class TwitchBot(ChatBot):
 
         async def on_message(msg: ChatMessage):
             user = db.find_user(msg.user.name, twitch_id=int(msg.user.id))
+
+            try:
+                roles = msg.user.badges.keys()
+            except AttributeError:
+                roles = []
+
             message = models.ChatMessage(
                 text=msg.text,
                 sender=user,
-                roles=msg.user.badges.keys()
+                roles=roles
             )
             commands.trigger_commands(message, self)
             _log.debug(f'Message received: {msg.text}')
