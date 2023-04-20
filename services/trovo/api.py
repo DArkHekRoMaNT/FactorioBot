@@ -113,7 +113,11 @@ class TrovoApi:
         self.refresh_token = d.get('refresh_token')
         return self.access_token is not None
 
-    def send_message(self, msg: str, channel_id: str):
+    def send_message(self, msg: str, channel_id: str, times: int = 1):
+        if times > 3:
+            _log.error(f'Can\'t send message {msg}')
+            return
+
         _log.info(f'Send message: {msg}')
         r = requests.post(f'{self.api_url}/chat/send', headers={
             'Accept': 'application/json',
@@ -125,6 +129,10 @@ class TrovoApi:
             'channel_id': channel_id
         })
         _log.debug(f'Send message response: {r.text}')
+
+        if r.text != '' and json.loads(r.text).get('error') == 'accessTokenExpired':
+            self.auth()
+            self.send_message(msg, channel_id, times + 1)
 
     def get_channel_chat_token(self, channel_id: str) -> str:
         _log.info('Get channel chat token')
