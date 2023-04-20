@@ -42,7 +42,7 @@ def setup_logger():
     log.addHandler(get_console_handler())
     log.addHandler(get_file_handler('latest.log'))
 
-    current_dt = datetime.now().strftime('%d-%m-%Y_%H-%M:%S')
+    current_dt = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     log.addHandler(get_file_handler(f'{current_dt}.log'))
 
     trovo_log = logging.getLogger('services')
