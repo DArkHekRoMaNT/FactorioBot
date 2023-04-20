@@ -51,34 +51,34 @@ class FactorioBot(ChatBot):
         @command('biters', aliases=['кусаки'], mana=3500, elixir=70, module='factorio')
         def bitters_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/spawn_biters {self.username}')
-            bot.send_message(f'{msg.sender} отправил толпу кусак')
+            bot.send_message(f'{msg.sender.name} отправил толпу кусак')
 
         @command('spitters', aliases=['плеваки'], mana=4000, elixir=80, module='factorio')
         def splitters_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/spawn_spitters {self.username}')
-            bot.send_message(f'{msg.sender} отправил толпу плевак')
+            bot.send_message(f'{msg.sender.name} отправил толпу плевак')
 
         @command('worms', aliases=['черви'], mana=5000, elixir=100, module='factorio')
         def worms_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/spawn_worms {self.username}')
-            bot.send_message(f'{msg.sender} призвал червей')
+            bot.send_message(f'{msg.sender.name} призвал червей')
 
         @command('spawners', aliases=['гнезда'], mana=10000, elixir=200, module='factorio')
         def spawners_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/spawn_spawners {self.username}')
-            bot.send_message(f'{msg.sender} заспавнил метеорит из кусак')
+            bot.send_message(f'{msg.sender.name} заспавнил метеорит из кусак')
 
         @command('hotpotato', aliases=['горячаякартошка'], mana=2500, elixir=50, module='factorio')
         def hotpotato_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/give_item {self.username} uranium_ore 100')
-            bot.send_message(f'{msg.sender} добавил немного радиации')
+            bot.send_message(f'{msg.sender.name} добавил немного радиации')
 
         @command('reactor', aliases=['реактор'], mana=-1, elixir=100, module='factorio')
         def reactor_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/give_item {self.username} uranium_ore 999999999')
-            bot.send_message(f'{msg.sender} помог запустить реактор')
+            bot.send_message(f'{msg.sender.name} помог запустить реактор')
 
         @command('dropall', aliases=['выброситьвсе'], mana=2500, elixir=50, module='factorio')
         def dropall_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/drop_all {self.username}')
-            bot.send_message(f'{msg.sender} разгрузил инвентарь')
+            bot.send_message(f'{msg.sender.name} разгрузил инвентарь')
