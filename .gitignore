@@ -6,6 +6,7 @@ __pycache__
 /data
 /backups
 /logs
+/venv
 
 **/factorio/**/mod-list.json
 .pytest_cache/**
