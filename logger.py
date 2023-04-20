@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 
 import colorlog
 
@@ -21,10 +22,11 @@ def get_console_handler():
     return console_handler
 
 
-def get_file_handler():
+def get_file_handler(path: str):
     if not os.path.exists('logs'):
         os.makedirs('logs')
-    file_handler = logging.FileHandler('logs/latest.log', encoding='utf-8')
+
+    file_handler = logging.FileHandler(f'logs/{path}', encoding='utf-8', mode='w')
     file_handler.setFormatter(logging.Formatter(
         '{asctime} {levelname} {name}: {message}',
         datefmt='%H:%M:%S',
@@ -38,7 +40,10 @@ def setup_logger():
     log.setLevel(logging.INFO)
 
     log.addHandler(get_console_handler())
-    log.addHandler(get_file_handler())
+    log.addHandler(get_file_handler('latest.log'))
+
+    current_dt = datetime.now().strftime('%d-%m-%Y_%H-%M:%S')
+    log.addHandler(get_file_handler(f'{current_dt}.log'))
 
     trovo_log = logging.getLogger('services')
     trovo_log.setLevel(logging.DEBUG)
