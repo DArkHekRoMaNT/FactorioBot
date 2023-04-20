@@ -41,13 +41,13 @@ class TrovoChat(ChatBot):
 
             self.active = True
             self.start_time = int(time())
-            self.ws = await websockets.connect(self.chat_url)
-            tasks = [
-                asyncio.create_task(self._ping_pong_loop()),
-                asyncio.create_task(self._response_loop()),
-                asyncio.create_task(self._request_loop())
-            ]
-            await asyncio.gather(*tasks)
+            async with websockets.connect(self.chat_url) as self.ws:
+                tasks = [
+                    asyncio.create_task(self._ping_pong_loop()),
+                    asyncio.create_task(self._response_loop()),
+                    asyncio.create_task(self._request_loop())
+                ]
+                await asyncio.gather(*tasks)
             await asyncio.sleep(5)
 
     @staticmethod
