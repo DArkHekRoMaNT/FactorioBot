@@ -82,3 +82,15 @@ class FactorioBot(ChatBot):
         def dropall_command(msg: ChatMessage, bot: ChatBot):
             execute(f'/drop_all {self.username}')
             bot.send_message(f'{msg.sender.name} разгрузил инвентарь')
+
+        # nopep8 /c remote.call("space-exploration", "begin_meteor_shower", {target_entity = game.player, meteors = 10})
+        # nopep8 /c remote.call("space-exploration", "begin_meteor_shower", {target_entity = game.player.selected or game.player})
+        # nopep8 /c remote.call("space-exploration", "begin_meteor_shower", {zone_name = "Nauvis", position = {x = 0, y = 0}, range = 1, meteors = 100})
+        # nopep8 /c for i = 1, 10 do remote.call("space-exploration", "begin_meteor_shower", {target_entity = game.player, meteors = 100}) end
+        @command('shower', aliases=['душ'], mana=7500, elixir=150, module='factorio')
+        def shower_command(msg: ChatMessage, bot: ChatBot):
+            execute(f'/c player = game.get_player({self.username})'
+                    'remote.call("space-exploration", "begin_meteor_shower", '
+                    '{target_entity = player, meteors = 10, range = 5})')
+            bot.send_message(f'{msg.sender.name} запустил метеоритный дождь')
+
