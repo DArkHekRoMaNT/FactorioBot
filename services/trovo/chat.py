@@ -44,16 +44,18 @@ class TrovoChat(ChatBot):
             self.last_pong_time = 0
             self.heartbeat_gap = 30
 
+            tasks = [
+                asyncio.create_task(self._ping_pong_loop()),
+                asyncio.create_task(self._response_loop(ws)),
+                asyncio.create_task(self._request_loop(ws))
+            ]
             try:
-                tasks = [
-                    asyncio.create_task(self._ping_pong_loop()),
-                    asyncio.create_task(self._response_loop(ws)),
-                    asyncio.create_task(self._request_loop(ws))
-                ]
                 await asyncio.gather(*tasks)
             except Exception as e:
                 _log.error(f'Chat loop crashed: {e}')
                 _log.debug(traceback.format_exc())
+                for task in tasks:
+                    task.cancel()
 
             if not self.active:
                 break
