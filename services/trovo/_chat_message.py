@@ -1,5 +1,8 @@
 import enum
+import logging
 from dataclasses import dataclass
+
+_log = logging.getLogger(__name__)
 
 
 class TrovoChatMessageType(enum.Enum):
@@ -20,6 +23,7 @@ class TrovoChatMessageType(enum.Enum):
     CUSTOM_SPELLS = 5009  # Custom Spells
     STREAM_ON_OFF_MESSAGES = 5012  # Stream on/off messages, invisible to the viewers
     UNFOLLOW_MESSAGE = 5013  # Unfollow message
+    UNKNOWN_TYPE = 999999999
 
 
 class ChannelUserRole(enum.Enum):
@@ -51,7 +55,13 @@ class TrovoChatMessage:
 
     @staticmethod
     def from_dict(obj: dict) -> 'TrovoChatMessage':
-        _type = TrovoChatMessageType(obj.get('type'))
+        type_num = obj.get('type')
+        try:
+            _type = TrovoChatMessageType(type_num)
+        except ValueError:
+            _type = TrovoChatMessageType.UNKNOWN_TYPE
+            _log.warning(f'Unknown message type: {type_num}')
+
         _content = str(obj.get('content'))
         _nick_name = str(obj.get('nick_name'))
         _avatar = str(obj.get('avatar'))
