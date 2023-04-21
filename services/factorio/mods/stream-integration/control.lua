@@ -193,23 +193,24 @@ commands.add_command("drop_all", "Drop all", function(command)
         local inventory = player.get_main_inventory()
         if inventory then
             local radius = math.sqrt(#inventory) / 2 + 2
-            game.print(radius)
             for i = 1, #inventory do
                 local stack = inventory[i]
                 local position = surface.find_non_colliding_position("item-on-ground", get_random_position_around(player, radius), 100, 0.1)
-                local simple_stack = {
-                    name = stack.name,
-                    count = stack.count
-                }
-                if position then
-                    surface.create_entity({
-                        name = "item-on-ground",
-                        position = position,
-                        item = stack,
-                        stack = simple_stack
-                    })
-                    inventory.remove(simple_stack)
-                end
+                pcall( function()
+                    local simple_stack = {
+                        name = stack.name,
+                        count = stack.count
+                    }
+                    if position then
+                        surface.create_entity({
+                            name = "item-on-ground",
+                            position = position,
+                            item = stack,
+                            stack = simple_stack
+                        })
+                        inventory.remove(simple_stack)
+                    end
+                end)
             end
         end
         player.print("Curse of leaky pockets. Where is my inventory?", { r = 255, g = 0, b = 0, a = 1 })
