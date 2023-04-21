@@ -24,7 +24,7 @@ def save(filename: str, data: dict or list or str):
     try:
         filepath = f'data/{filename}'
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        if data is str:
+        if isinstance(data, str):
             text = data
         else:
             text = json.dumps(data, default=dict, indent=True)
