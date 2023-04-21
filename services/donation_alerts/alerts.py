@@ -31,7 +31,10 @@ class DonationAlerts:
             _log.info(msg)
 
             if msg.is_test_alert:
-                return
+                _log.debug(f'Test alert, skipped')
+
+            if msg.alert_type != 1:
+                _log.debug(f'Not donation, skipped')
 
             try:
                 user = db.find_user(msg.username)
