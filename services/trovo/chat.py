@@ -21,17 +21,16 @@ _log = logging.getLogger(__name__)
 class TrovoChat(ChatBot):
     chat_url = 'wss://open-chat.trovo.live/chat'
     request_queue = []
-    heartbeat_gap = 30
     active = False
     start_time = 0
     last_pong_time = 0
+    heartbeat_gap = 30
 
     def __init__(self, client_id: str, client_secret: str, redirect_url: str, channel_id: str):
         self.api = TrovoApi(client_id, client_secret, redirect_url)
         self.channel_id = channel_id
 
     async def run(self):
-        self.active = True
         async for ws in websockets.connect(self.chat_url):
             self.load()
             if not self.api.auth():
@@ -39,8 +38,12 @@ class TrovoChat(ChatBot):
                 return
             self.save()
 
-            self.start_time = int(time())
             self.request_queue.clear()
+            self.active = True
+            self.start_time = int(time())
+            self.last_pong_time = 0
+            self.heartbeat_gap = 30
+
             try:
                 tasks = [
                     asyncio.create_task(self._ping_pong_loop()),
@@ -89,7 +92,7 @@ class TrovoChat(ChatBot):
 
             if len(self.request_queue) == 0:
                 await asyncio.sleep(0.1)
-                return
+                continue
 
             msg = self.request_queue.pop(0)
             data = json.dumps(msg)
