@@ -218,3 +218,11 @@ commands.add_command("drop_all", "Drop all", function(command)
         game.print("Error")
     end
 end)
+
+commands.add_command("ca", "Execute with achievements", function(command)
+    if not pcall(function()
+        assert(loadstring(command.parameter))()
+    end) then
+        game.print("Error")
+    end
+end)
