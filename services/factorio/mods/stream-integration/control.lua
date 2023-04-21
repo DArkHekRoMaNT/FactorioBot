@@ -87,7 +87,7 @@ commands.add_command("spawn_biters", "summon biters around you", function(comman
     player.print("Good luck to survive", { r = 255, g = 0, b = 0, a = 1 })
 end)
 
-commands.add_command("spawn_splitters", "summon splitters around you", function(command)
+commands.add_command("spawn_spitters", "summon spitters around you", function(command)
     local player = get_player(command.parameter)
     if not player then
         return
