@@ -45,5 +45,6 @@ def setup_logger():
     current_dt = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     log.addHandler(get_file_handler(f'{current_dt}.log'))
 
-    trovo_log = logging.getLogger('services')
-    trovo_log.setLevel(logging.DEBUG)
+    logging.getLogger('services').setLevel(logging.DEBUG)
+    logging.getLogger('commands').setLevel(logging.DEBUG)
+    logging.getLogger('db').setLevel(logging.DEBUG)
