@@ -162,7 +162,7 @@ commands.add_command("give_item", "Give item", function(command)
         table.insert(args, str)
     end
     if #args < 3 then
-        game.print("/give <player> <name>")
+        game.print("/give_item <player> <name>")
         return
     end
 
