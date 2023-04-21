@@ -22,7 +22,6 @@ class TrovoChat(ChatBot):
     chat_url = 'wss://open-chat.trovo.live/chat'
     request_queue = []
     heartbeat_gap = 30
-    ws = None
     active = False
     start_time = 0
     last_pong_time = 0
@@ -32,106 +31,95 @@ class TrovoChat(ChatBot):
         self.channel_id = channel_id
 
     async def run(self):
-        while True:
+        self.active = True
+        async for ws in websockets.connect(self.chat_url):
             self.load()
             if not self.api.auth():
                 _log.critical('Auth error')
                 return
             self.save()
 
-            self.active = True
             self.start_time = int(time())
-            async with websockets.connect(self.chat_url) as self.ws:
+            self.request_queue.clear()
+            try:
                 tasks = [
                     asyncio.create_task(self._ping_pong_loop()),
-                    asyncio.create_task(self._response_loop()),
-                    asyncio.create_task(self._request_loop())
+                    asyncio.create_task(self._response_loop(ws)),
+                    asyncio.create_task(self._request_loop(ws))
                 ]
                 await asyncio.gather(*tasks)
+            except Exception as e:
+                _log.error(f'Chat loop crashed: {e}')
+                _log.debug(traceback.format_exc())
+
+            if not self.active:
+                break
+
             await asyncio.sleep(5)
 
-    @staticmethod
-    def loop(name: str):
-        def decorator(func):
-            async def wrapper(self):
-                try:
-                    _log.info(f'{name} loop started')
-                    while self.active:
-                        await func(self)
-
-                except Exception as e:
-                    _log.error(f'{name} loop crashed: {e}')
-                    _log.debug(traceback.format_exc())
-                    self.active = False
-
-            return wrapper
-
-        return decorator
-
-    @loop('Ping-pong')
     async def _ping_pong_loop(self):
-        await asyncio.sleep(self.heartbeat_gap)
-        self.request_queue.append({
-            'type': 'PING',
-            'nonce': self.get_new_nonce()
-        })
+        _log.info(f'Ping-pong loop started')
+        while self.active:
+            await asyncio.sleep(self.heartbeat_gap)
+            self.request_queue.append({
+                'type': 'PING',
+                'nonce': self.get_new_nonce()
+            })
 
-    @loop('Response')
-    async def _response_loop(self):
-        try:
-            data = await self.ws.recv()
+    async def _response_loop(self, ws):
+        _log.info(f'Response loop started')
+        while self.active:
+            data = await ws.recv()
             _log.debug(f'Response: {data}')
             raw_msg = TrovoChatSocketMessage.from_dict(json.loads(data))
+            self._process_message(raw_msg)
 
-            match raw_msg.type:
-                case "RESPONSE":
-                    self.send_message('Awakening')
+    async def _request_loop(self, ws):
+        _log.info(f'Request loop started')
+        while self.active:
+            if self.last_pong_time + self.heartbeat_gap * 2 < time():
+                self.request_queue.append({
+                    'type': 'AUTH',
+                    'nonce': self.get_new_nonce(),
+                    'data': {
+                        'token': self.api.get_channel_chat_token(self.channel_id)
+                    }
+                })
+                self.last_pong_time = time()
 
-                case "PONG":
-                    self.last_pong_time = time()
-                    self.heartbeat_gap = raw_msg.data.get('gap', 30)
+            if len(self.request_queue) == 0:
+                await asyncio.sleep(0.1)
+                return
 
-                case "CHAT":
-                    for raw_chat_msg in raw_msg.data.get('chats', []):
-                        msg = TrovoChatMessage.from_dict(raw_chat_msg)
-                        if msg.send_time >= self.start_time:
-                            user = db.find_user(msg.nick_name, trovo_id=msg.sender_id)
-                            self.check_donation(msg, user)
-                            trigger_commands(ChatMessage(
-                                text=msg.content,
-                                sender=user,
-                                roles=msg.roles
-                            ), self)
-                        else:
-                            _log.debug(f'Old message "{msg.content}" ignored')
+            msg = self.request_queue.pop(0)
+            data = json.dumps(msg)
+            _log.debug(f'Request: {data}')
+            await ws.send(data)
 
-        except websockets.ConnectionClosedError as e:
-            _log.error(f'Response loop connection error, stopped: {e}')
-            _log.debug(traceback.format_exc())
-            self.active = False
+    def _process_message(self, raw_msg: TrovoChatSocketMessage):
+        match raw_msg.type:
+            case "RESPONSE":
+                self.send_message('Awakening')
 
-    @loop('Request')
-    async def _request_loop(self):
-        if self.last_pong_time + self.heartbeat_gap * 2 < time():
-            self.request_queue.append({
-                'type': 'AUTH',
-                'nonce': self.get_new_nonce(),
-                'data': {
-                    'token': self.api.get_channel_chat_token(self.channel_id)
-                }
-            })
-            self.last_pong_time = time()
+            case "PONG":
+                self.last_pong_time = time()
+                self.heartbeat_gap = raw_msg.data.get('gap', 30)
 
-        if len(self.request_queue) == 0:
-            await asyncio.sleep(0.1)
-            return
+            case "CHAT":
+                for raw_chat_msg in raw_msg.data.get('chats', []):
+                    msg = TrovoChatMessage.from_dict(raw_chat_msg)
+                    if msg.send_time >= self.start_time:
+                        user = db.find_user(msg.nick_name, trovo_id=msg.sender_id)
+                        self._check_donation(msg, user)
+                        trigger_commands(ChatMessage(
+                            text=msg.content,
+                            sender=user,
+                            roles=msg.roles
+                        ), self)
+                    else:
+                        _log.debug(f'Old message "{msg.content}" ignored')
 
-        msg = self.request_queue.pop(0)
-        data = json.dumps(msg)
-        _log.debug(f'Request: {data}')
-        await self.ws.send(data)
-
-    def check_donation(self, msg: TrovoChatMessage, user: UserData):
+    def _check_donation(self, msg: TrovoChatMessage, user: UserData):
         if msg.type == TrovoChatMessageType.SPELLS:
             content = json.loads(msg.content)
             value = content.get('gift_value')
