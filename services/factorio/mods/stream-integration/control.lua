@@ -78,7 +78,7 @@ commands.add_command("spawn_biters", "summon biters around you", function(comman
 
     spawn_units_from_spawner("biter-spawner", 10, function(unit)
         local surface = player.surface
-        local position = surface.find_non_colliding_position(unit, get_random_position_around(player, 10), 10, 1)
+        local position = surface.find_non_colliding_position(unit, get_random_position_around(player, 40), 10, 1)
         if position then
             surface.create_entity({ name = unit, position = position, force = game.forces.enemy })
         end
@@ -95,7 +95,7 @@ commands.add_command("spawn_spitters", "summon spitters around you", function(co
 
     spawn_units_from_spawner("spitter-spawner", 10, function(unit)
         local surface = player.surface
-        local position = surface.find_non_colliding_position(unit, get_random_position_around(player, 10), 10, 1)
+        local position = surface.find_non_colliding_position(unit, get_random_position_around(player, 40), 10, 1)
         if position then
             surface.create_entity({ name = unit, position = position, force = game.forces.enemy })
         end
@@ -124,7 +124,7 @@ commands.add_command("spawn_worms", "summon worms around you", function(command)
 
     for i = 1, 5 do
         local surface = player.surface
-        local position = surface.find_non_colliding_position(name, get_random_position_around(player, 10), 10, 1)
+        local position = surface.find_non_colliding_position(name, get_random_position_around(player, 40), 10, 1)
         if position then
             surface.create_entity({ name = name, position = position, force = game.forces.enemy })
         end
@@ -147,7 +147,7 @@ commands.add_command("spawn_spawners", "summon spawners around you", function(co
             unit = "biter-spawner"
         end
         local surface = player.surface
-        local position = surface.find_non_colliding_position(unit, get_random_position_around(player, 10), 10, 1)
+        local position = surface.find_non_colliding_position(unit, get_random_position_around(player, 40), 10, 1)
         if position then
             surface.create_entity({ name = unit, position = position, force = game.forces.enemy })
         end
