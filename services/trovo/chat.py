@@ -138,12 +138,12 @@ class TrovoChat(ChatBot):
             db.add_points(user, 500, PointsType.Elixir, bot=self)
 
     def load(self):
-        auth = db.load('auth/trovo')
+        auth = db.load('auth/trovo.json')
         self.api.access_token = auth.get('access_token', self.api.access_token)
         self.api.refresh_token = auth.get('refresh_token', self.api.refresh_token)
 
     def save(self):
-        db.save('auth/trovo', {
+        db.save('auth/trovo.json', {
             'access_token': self.api.access_token,
             'refresh_token': self.api.refresh_token
         })

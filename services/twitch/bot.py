@@ -26,7 +26,6 @@ class TwitchBot(ChatBot):
     access_token: str = None
     refresh_token: str = None
     user: TwitchUser
-    auth_data_path = 'auth/twitch'
     scope = [
         AuthScope.CHAT_READ,
         AuthScope.CHAT_EDIT,
@@ -105,13 +104,13 @@ class TwitchBot(ChatBot):
             self.access_token, self.refresh_token = await auth.authenticate()
 
     def save(self):
-        db.save(self.auth_data_path, {
+        db.save('auth/twitch.json', {
             'access_token': self.access_token,
             'refresh_token': self.refresh_token
         })
 
     def load(self):
-        data = db.load(self.auth_data_path)
+        data = db.load('auth/twitch.json')
         self.access_token = data.get('access_token', self.access_token)
         self.refresh_token = data.get('refresh_token', self.refresh_token)
 

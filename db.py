@@ -11,7 +11,7 @@ from models import PointsType, UserData, ChatBot
 
 _log = logging.getLogger(__name__)
 
-users_filename = 'users'
+users_filename = 'users.json'
 users: list[UserData] = []
 
 
@@ -20,13 +20,16 @@ def init():
     users = [UserData.from_dict(usr) for usr in load(users_filename)]
 
 
-def save(filename: str, data: dict or list):
+def save(filename: str, data: dict or list or str):
     try:
-        filepath = f'data/{filename}.json'
+        filepath = f'data/{filename}'
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        json_data = json.dumps(data, default=dict, indent=True)
+        if data is str:
+            text = data
+        else:
+            text = json.dumps(data, default=dict, indent=True)
         with open(filepath, 'w+', encoding='utf-8') as f:
-            f.write(json_data)
+            f.write(text)
 
     except Exception as e:
         _log.critical(f'Can\'t save: {e}')
@@ -35,7 +38,7 @@ def save(filename: str, data: dict or list):
 
 def load(filename: str) -> dict or list:
     try:
-        filepath = f'data/{filename}.json'
+        filepath = f'data/{filename}'
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.loads(f.read())
