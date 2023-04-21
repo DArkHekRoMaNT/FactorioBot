@@ -9,3 +9,4 @@ from .commands import (
     active_modules
 )
 from .points import add_ep_command, add_mp_command, points_command
+from .timer import timer_command
