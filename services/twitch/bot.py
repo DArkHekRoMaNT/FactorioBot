@@ -1,8 +1,7 @@
 import asyncio
 import logging
-import os
+import time
 
-from dotenv import load_dotenv
 from twitchAPI import UserAuthenticator, Chat
 from twitchAPI.chat import EventData, ChatMessage, ChatSub
 from twitchAPI.helper import first
@@ -14,7 +13,6 @@ from twitchAPI.types import AuthScope, InvalidRefreshTokenException, ChatEvent
 import commands
 import db
 import models
-from logger import setup_logger
 from models import ChatBot
 
 _log = logging.getLogger(__name__)
@@ -83,14 +81,20 @@ class TwitchBot(ChatBot):
 
         self.message_queue.clear()
 
+        last_announce_time = time.time()
         while True:
+            if time.time() - last_announce_time > 1800:
+                last_announce_time = time.time()
+                self.send_message('Trovo: https://trovo.live/DArkHekRoMaNT')
+                self.send_message('Дискорд-сервер: https://discord.gg/WE43bcx4EK')
+
             if not self.chat.is_connected:
                 self.chat.stop()
                 self.chat.start()
 
             if len(self.message_queue) > 0:
-                msg = self.message_queue.pop(0)
-                await self.chat.send_message(self.channel_name, msg)
+                chat_msg = self.message_queue.pop(0)
+                await self.chat.send_message(self.channel_name, chat_msg)
             else:
                 await asyncio.sleep(0.1)
 
