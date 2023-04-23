@@ -22,8 +22,7 @@ async def main():
     trovo_bot = TrovoChat(
         os.getenv('TROVO_CLIENT_ID'),
         os.getenv('TROVO_CLIENT_SECRET'),
-        os.getenv('TROVO_REDIRECT_URL'),
-        os.getenv('TROVO_CHANNEL_ID')
+        os.getenv('TROVO_REDIRECT_URL')
     )
 
     twitch_bot = TwitchBot(

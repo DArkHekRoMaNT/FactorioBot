@@ -25,10 +25,10 @@ class TrovoChat(ChatBot):
     start_time = 0
     last_pong_time = 0
     heartbeat_gap = 30
+    channel_id = ''
 
-    def __init__(self, client_id: str, client_secret: str, redirect_url: str, channel_id: str):
+    def __init__(self, client_id: str, client_secret: str, redirect_url: str):
         self.api = TrovoApi(client_id, client_secret, redirect_url)
-        self.channel_id = channel_id
 
     async def run(self):
         async for ws in websockets.connect(self.chat_url):
@@ -83,14 +83,7 @@ class TrovoChat(ChatBot):
         _log.info(f'Request loop started')
         while self.active:
             if self.last_pong_time + self.heartbeat_gap * 2 < time():
-                self.request_queue.append({
-                    'type': 'AUTH',
-                    'nonce': self.get_new_nonce(),
-                    'data': {
-                        'token': self.api.get_channel_chat_token(self.channel_id)
-                    }
-                })
-                self.last_pong_time = time()
+                self._chat_auth()
 
             if len(self.request_queue) == 0:
                 await asyncio.sleep(0.1)
@@ -100,6 +93,16 @@ class TrovoChat(ChatBot):
             data = json.dumps(msg)
             _log.debug(f'Request: {data}')
             await ws.send(data)
+
+    def _chat_auth(self):
+        self.request_queue.append({
+            'type': 'AUTH',
+            'nonce': self.get_new_nonce(),
+            'data': {
+                'token': self.api.get_channel_chat_token()
+            }
+        })
+        self.last_pong_time = time()
 
     def _process_message(self, raw_msg: TrovoChatSocketMessage):
         match raw_msg.type:
@@ -139,17 +142,21 @@ class TrovoChat(ChatBot):
 
     def load(self):
         auth = db.load('auth/trovo.json')
-        self.api.access_token = auth.get('access_token', self.api.access_token)
-        self.api.refresh_token = auth.get('refresh_token', self.api.refresh_token)
+        self.api.channel.access_token = auth.get('access_token')
+        self.api.channel.refresh_token = auth.get('refresh_token')
+        self.api.bot.access_token = auth.get('bot_access_token')
+        self.api.bot.refresh_token = auth.get('bot_refresh_token')
 
     def save(self):
         db.save('auth/trovo.json', {
-            'access_token': self.api.access_token,
-            'refresh_token': self.api.refresh_token
+            'access_token': self.api.channel.access_token,
+            'refresh_token': self.api.channel.refresh_token,
+            'bot_access_token': self.api.bot.access_token,
+            'bot_refresh_token': self.api.bot.refresh_token
         })
 
     def send_message(self, msg: str):
-        return self.api.send_message(msg, self.channel_id)
+        return self.api.send_message(msg)
 
     @staticmethod
     def get_new_nonce() -> str:

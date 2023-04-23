@@ -5,7 +5,6 @@
 TROVO_CLIENT_ID='trovo client id' <br>
 TROVO_CLIENT_SECRET='trovo client secret' <br>
 TROVO_REDIRECT_URL='http://localhost:8000' <br>
-TROVO_CHANNEL_ID='channel id for bot' <br>
 
 FACTORIO_USERNAME='your nick in game' <br>
 FACTORIO_RCON_HOST='127.0.0.1' <br>
