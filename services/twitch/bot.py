@@ -108,13 +108,13 @@ class TwitchBot(ChatBot):
             self.access_token, self.refresh_token = await auth.authenticate()
 
     def save(self):
-        db.save('auth/twitch.json', {
+        db.save('accounts/twitch.json', {
             'access_token': self.access_token,
             'refresh_token': self.refresh_token
         })
 
     def load(self):
-        data = db.load('auth/twitch.json')
+        data = db.load('accounts/twitch.json')
         self.access_token = data.get('access_token', self.access_token)
         self.refresh_token = data.get('refresh_token', self.refresh_token)
 
