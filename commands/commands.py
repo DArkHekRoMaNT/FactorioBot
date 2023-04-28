@@ -59,7 +59,7 @@ def command(name: str, *, aliases=None, owner_only=False, roles_required=None,
                 _log.debug(f'Can\'t pay for trigger command "{name}": {msg.text} by {username}')
                 return False
 
-            prefix = msg.text.split(maxsplit=1)[0]
+            prefix = msg.text.split(maxsplit=1)[0].lower()
             if any([cmd for cmd in [*aliases, name] if prefix == command_prefix + cmd]):
                 if can_execute(msg) and has_pay():
                     _log.debug(f'Trigger command "{name}": {msg.text} by {username}')
