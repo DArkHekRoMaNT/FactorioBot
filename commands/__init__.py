@@ -10,3 +10,4 @@ from .commands import (
 )
 from .points import add_ep_command, add_mp_command, points_command
 from .timer import timer_command
+from .beep import beep_command
