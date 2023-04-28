@@ -91,15 +91,21 @@ def command(name: str, *, aliases=None, owner_only=False, roles_required=None,
 
 @command('help', aliases=['помощь'])
 def help_command(msg: ChatMessage, bot: ChatBot):
-    help_text = []
+    help_text = {}
     for cmd in commands:
         if cmd.can_execute(msg):
-            help_text.append(cmd.help_text)
+            try:
+                help_text[cmd.module].append(cmd.help_text)
+            except KeyError:
+                help_text[cmd.module] = list()
+                help_text[cmd.module].append(cmd.help_text)
 
     if len(help_text) == 0:
         bot.send_message('No available commands')
     else:
-        bot.send_message('\u200c' + ' '.join(help_text))  # add zero-width space first for prevent loop
+        for value in help_text.values():
+            text = '\u200c' + ' '.join(value)  # add zero-width space first for prevent loop
+            bot.send_message(text)
 
 
 @command('module_on', owner_only=True)
