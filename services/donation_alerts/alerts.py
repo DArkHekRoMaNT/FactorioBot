@@ -34,13 +34,20 @@ class DonationAlerts:
                 _log.debug(f'Test alert, skipped')
                 return
 
-            if msg.alert_type != 1:
-                _log.debug(f'Not donation, skipped')
-                return
-
             try:
+                match int(msg.alert_type):
+                    case 1:
+                        p_type = PointsType.Elixir
+                        amount = int(msg.amount_main)
+                    case 19:
+                        p_type = PointsType.Mana
+                        amount = int(float(msg.amount))
+                    case _:
+                        return
+
                 user = db.find_user(msg.username)
-                db.add_points(user, msg.amount_main, PointsType.Elixir, bot=self.announce_bot)
+                db.add_points(user, amount, p_type, bot=self.announce_bot)
+
             except Exception as e:
                 _log.error(f'Can\'t add donation points {e}')
                 _log.debug(traceback.format_exc(e))
