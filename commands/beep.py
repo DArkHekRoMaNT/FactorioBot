@@ -11,3 +11,4 @@ def beep_command(msg: ChatMessage, bot: ChatBot):
         winsound.Beep(frequency=800, duration=200)
     else:
         print('\a')
+    bot.send_message(f'Bop @{msg.sender.name}')
